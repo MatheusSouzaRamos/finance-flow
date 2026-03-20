@@ -44,8 +44,6 @@ O sistema gera visualizações para facilitar o entendimento dos gastos:
 * Gráfico de gastos por categoria
 * Gráfico de gastos por forma de pagamento
 
-Esses gráficos ajudam a identificar padrões e tomar decisões mais conscientes
-
 Com base no período selecionado, o sistema apresenta:
 
 * Valor total movimentado
