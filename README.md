@@ -1,2 +1,2 @@
 # finance-flow
-Sistema de gerenciamento de finanças em Python (Streamlit + Pandas)
+Sistema de gerenciamento de gastos em Python (Streamlit + Pandas)
