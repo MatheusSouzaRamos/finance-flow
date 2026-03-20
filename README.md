@@ -65,11 +65,13 @@ O sistema é organizado em:
 
 1. Baixe ou clone o repositório
 2. instale as dependências
-3. utilize -> run.bat
-
 ```bash
 pip install -r requirements.txt
 ```
+3. utilize -> run.bat
+4. Cadastre categorias e formas de pagamentos
+5. Insira movimentos
+
 
 ---
 
