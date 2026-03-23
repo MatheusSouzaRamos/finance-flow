@@ -57,6 +57,8 @@ def insertCategorias(nome):
         cursor = conexao.cursor()
         cursor.execute('INSERT INTO categorias (nome) VALUES (?)', (nome,))
         conexao.commit()
+        with open('log.txt', 'a') as arquivo:
+            arquivo.write(f'INSERT categorias NOME = {nome}\n')
     except:
         conexao.rollback()
     finally:
@@ -68,6 +70,8 @@ def updateCategorias(id, nome):
         cursor = conexao.cursor()
         cursor.execute('UPDATE categorias set nome = ? WHERE id = ?', (nome, id))
         conexao.commit()
+        with open('log.txt', 'a') as arquivo:
+            arquivo.write(f'UPDATE categorias ID = {id} NOME = {nome}\n')
     except:
         conexao.rollback()
     finally:
@@ -79,6 +83,8 @@ def deleteCategorias(id):
         cursor = conexao.cursor()
         cursor.execute('DELETE FROM categorias WHERE id = ?', (id,))
         conexao.commit()
+        with open('log.txt', 'a') as arquivo:
+            arquivo.write(f'DELETE categorias ID = {id}\n')
     except:
         conexao.rollback()
     finally:
@@ -101,6 +107,8 @@ def insertPagamentos(nome):
         cursor = conexao.cursor()
         cursor.execute('INSERT INTO pagamentos (nome) VALUES (?)', (nome,))
         conexao.commit()
+        with open('log.txt', 'a') as arquivo:
+            arquivo.write(f'INSERT pagamento NOME = {nome}\n')
     except:
         conexao.rollback()
     finally:
@@ -112,6 +120,8 @@ def updatePagamentos(id, nome):
         cursor = conexao.cursor()
         cursor.execute('UPDATE pagamentos SET nome = ? WHERE id = ?', (nome, id))
         conexao.commit()
+        with open('log.txt', 'a') as arquivo:
+            arquivo.write(f'UPDATE pagamentos ID = {id} NOME = {nome}\n')
     except:
         conexao.rollback()
     finally:
@@ -123,6 +133,8 @@ def deletePagamentos(id):
         cursor = conexao.cursor()
         cursor.execute('DELETE FROM pagamentos WHERE id = ?', (id,))
         conexao.commit()
+        with open('log.txt', 'a') as arquivo:
+            arquivo.write(f'DELETE pagamentos ID = {id}\n')
     except:
         conexao.rollback()
     finally:
@@ -145,6 +157,8 @@ def insertMovimentos(descricao, valor, categoria_id, pagamento_id, status, data)
         cursor = conexao.cursor()
         cursor.execute('INSERT INTO movimentos (descricao, valor, categoria_id, pagamento_id, status, data) VALUES (?,?,?,?,?,?)', (descricao, valor, categoria_id, pagamento_id, status, data))
         conexao.commit()
+        with open('log.txt', 'a') as arquivo:
+            arquivo.write(f'INSERT movimentos DESCRICAO = {descricao} | VALOR = {valor} | CATEGORIA = {categoria_id} | PAGAMENTO = {pagamento_id} | STAUS = {status} | DATA = {data}\n')
     except:
         conexao.rollback()
     finally:
@@ -156,6 +170,8 @@ def updateMovimentos(id, descricao, valor, categoria_id, pagamento_id, status, d
         cursor = conexao.cursor()
         cursor.execute('UPDATE movimentos SET descricao = ?, valor = ?, categoria_id = ?, pagamento_id = ?, status = ?, data = ? WHERE id = ?', (descricao, valor, categoria_id, pagamento_id, status, data, id))
         conexao.commit()
+        with open('log.txt', 'a') as arquivo:
+            arquivo.write(f'UPDATE movimentos DESCRICAO = {descricao} | VALOR = {valor} | CATEGORIA = {categoria_id} | PAGAMENTO = {pagamento_id} | STAUS = {status} | DATA = {data}\n')
     except:
         conexao.rollback()
     finally:
@@ -166,6 +182,8 @@ def deleteMovimentos(id):
         conexao = obterConexao()
         cursor = conexao.cursor()
         cursor.execute('DELETE FROM movimentos WHERE id = ?', (id,))
+        with open('log.txt', 'a') as arquivo:
+            arquivo.write(f'DELETE movimentos ID = {id}\n')
         conexao.commit()
     except:
         conexao.rollback()
