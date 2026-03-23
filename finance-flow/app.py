@@ -405,10 +405,11 @@ with abaPagamentos:
                 col1, col2 = st.columns([1,1])
 
                 with col1:
-                    if st.form_submit_button('Confirmar', key=f"buttonEditarPagamento{st.session_state['editarPagamento_nome']}"):
+                    if st.form_submit_button('Confirmar', key=f"buttonEditarPagamento{st.session_state.get('editarPagamento_nome', '')}"):
                         if nomeEditar.strip() != '':
+                            nomeEditar = nomeEditar.strip()
                             dbac.updatePagamentos(st.session_state['editarPagamento_id'], nomeEditar)
-                            del st.session_state['editarPagamento_nome']
+                            del st.session_state['editarPagamento_id']
                             st.rerun()
                         else:
                             st.warning('Nome inválido')
