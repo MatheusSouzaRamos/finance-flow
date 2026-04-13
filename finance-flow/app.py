@@ -60,7 +60,6 @@ def validarCamposMovimento(descricao, valor, categoria_id, pagamento_id, status,
     except:
         return False
     if status.strip() == '':
-        st.write(status)
         return False
     try:
         data = validarData(data)
