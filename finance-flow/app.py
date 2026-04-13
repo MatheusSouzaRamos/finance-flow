@@ -25,6 +25,24 @@ def carregarTabelas():
 def inicializar():
     dbac.montarBanco()
 
+diasValidos = [str(i) for i in range (1,32)]
+
+def validarData(data):
+    try:
+        if data in diasValidos:
+            hoje = pd.Timestamp.now()
+            dataString = str(data).zfill(2) + '/' + hoje.strftime('%m/%Y')
+            data = pd.to_datetime(dataString, format="%d/%m/%Y")
+            data = data.strftime("%d/%m/%Y")
+            return data
+        else:
+            data = pd.to_datetime(data, format="%d/%m/%Y")
+            data = data.strftime("%d/%m/%Y")
+            return data
+    except ValueError as erro:
+        st.title(f'ERRO AO CONverter {erro}')
+        raise ValueError('Erro ao converter')
+
 def validarCamposMovimento(descricao, valor, categoria_id, pagamento_id, status, data):
     if descricao.strip() == '':
         return False
@@ -45,7 +63,7 @@ def validarCamposMovimento(descricao, valor, categoria_id, pagamento_id, status,
         st.write(status)
         return False
     try:
-        data = pd.to_datetime(data, format="%d/%m/%Y")
+        data = validarData(data)
     except:
         return False
     return True
@@ -145,7 +163,7 @@ with abaMovimentos:
                 categoria_id = int(categoria_id)
                 pagamento_id = int(pagamento_id)
                 status = status.strip()
-                data = data.strip()
+                data = validarData(data)
                 dbac.insertMovimentos(descricao, valor, categoria_id, pagamento_id, status, data)
                 st.rerun()
             else:
