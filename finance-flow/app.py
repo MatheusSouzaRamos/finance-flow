@@ -71,16 +71,64 @@ inicializar()
 carregarTabelas()
 # ==================== SIDEBAR ====================
 st.sidebar.subheader('Filtros')
+st.sidebar.text('Datas')
 a = pd.Timestamp.today().date()
 b = pd.Timestamp.today().date()
 primeiroDiaMesAtual = a.replace(day=1)
 primeiroDiaMesAtual = primeiroDiaMesAtual.strftime('%d/%m/%Y')
 b = b.strftime('%d/%m/%Y')
-
 dataInicialText = st.sidebar.text_input('Data Inicial dd/mm/aaaa', value = primeiroDiaMesAtual)
 dataFimText = st.sidebar.text_input('Data Final dd/mm/aaaa', value = b)
 
-#st.sidebar.subheader('#Exportar Excel')
+dfC = df_mov_filtrado.merge(
+    df_cat,
+    left_on='categoria_id',
+    right_on='id',
+    how='left'
+)
+
+mapaCategorias = (
+    dfC[['categoria_id', 'nome']]
+    .drop_duplicates()
+    .set_index('categoria_id')['nome']
+    .to_dict()
+)
+
+categoriasDisponiveis = sorted(mapaCategorias.keys())
+
+categoriasSelecionadas = st.sidebar.multiselect(
+    'Categorias',
+    options=categoriasDisponiveis,
+    default=categoriasDisponiveis,
+    format_func=lambda x: mapaCategorias.get(x, x)
+)
+
+st.text('Pagamentos')
+
+dfP = df_mov_filtrado.merge(
+    df_pag,
+    left_on='pagamento_id',
+    right_on='id',
+    how='left'
+)
+
+mapaPagamentos = (
+    dfP[['pagamento_id', 'nome']]
+    .drop_duplicates()
+    .set_index('pagamento_id')['nome']
+    .to_dict()
+)
+
+pagamentosDisponiveis = sorted(mapaPagamentos.keys())
+
+pagamentosSelecionados = st.sidebar.multiselect(
+    'Pagamentos',
+    options=pagamentosDisponiveis,
+    default=pagamentosDisponiveis,
+    format_func=lambda x: mapaPagamentos.get(x, x)
+)
+# =====================================================
+
 
 try:
     dataInicial = pd.to_datetime(dataInicialText, format='%d/%m/%Y')
@@ -90,7 +138,7 @@ try:
         raise ValueError('DATA INICIAL MAIOR QUE DATA FINAL')
     
     df_mov_filtrado['data'] = pd.to_datetime(df_mov_filtrado['data'], dayfirst=True, format='%d/%m/%Y')
-    df_mov_filtrado = df_mov_filtrado[(df_mov_filtrado['data'] >= dataInicial) & (df_mov_filtrado['data'] <= dataFim)]
+    df_mov_filtrado = df_mov_filtrado[(df_mov_filtrado['data'] >= dataInicial) & (df_mov_filtrado['data'] <= dataFim) & (df_mov_filtrado['pagamento_id'].isin(pagamentosSelecionados)) & (df_mov_filtrado['categoria_id'].isin(categoriasSelecionadas))]
 except Exception as erro:
     st.sidebar.warning(f'Erro: {erro}')
 
@@ -99,9 +147,11 @@ abaVisaoGeral, abaMovimentos, abaCategorias, abaPagamentos = st.tabs(['Visão Ge
 
 with abaVisaoGeral:
     try:
+        if not categoriasSelecionadas or not pagamentosSelecionados:
+            raise ValueError('Filtros de categoria e/ou pagamentos necessários ')
         
         if df_mov_filtrado.empty:
-            raise ValueError('Dados indisponíveis para consulta, confira os filtros.')
+            raise ValueError('Dados indisponíveis para consulta, confira os filtros de data.')
         
         st.text(
             f"Dados de: {pd.to_datetime(df_mov_filtrado['data'].min(), format='%d/%m/%Y').strftime('%d/%m/%Y')} "
