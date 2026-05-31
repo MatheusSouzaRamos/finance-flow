@@ -25,7 +25,7 @@ def carregarTabelas():
 def inicializar():
     dbac.montarBanco()
 
-diasValidos = [str(i) for i in range (1,32)]
+diasValidos = [str(i) for i in range (1,32)] + ['01','02','03','04','05','06','07','08','09']
 
 def validarData(data):
     try:
@@ -40,7 +40,7 @@ def validarData(data):
             data = data.strftime("%d/%m/%Y")
             return data
     except ValueError as erro:
-        st.title(f'ERRO AO CONverter {erro}')
+        # st.title(f'ERRO AO CONverter {erro}')
         raise ValueError('Erro ao converter')
 
 def validarCamposMovimento(descricao, valor, categoria_id, pagamento_id, status, data):
@@ -66,6 +66,7 @@ def validarCamposMovimento(descricao, valor, categoria_id, pagamento_id, status,
     except:
         return False
     return True
+
 
 inicializar()
 carregarTabelas()
@@ -138,7 +139,12 @@ try:
         raise ValueError('DATA INICIAL MAIOR QUE DATA FINAL')
     
     df_mov_filtrado['data'] = pd.to_datetime(df_mov_filtrado['data'], dayfirst=True, format='%d/%m/%Y')
-    df_mov_filtrado = df_mov_filtrado[(df_mov_filtrado['data'] >= dataInicial) & (df_mov_filtrado['data'] <= dataFim) & (df_mov_filtrado['pagamento_id'].isin(pagamentosSelecionados)) & (df_mov_filtrado['categoria_id'].isin(categoriasSelecionadas))]
+    df_mov_filtrado = df_mov_filtrado[
+        (df_mov_filtrado['data'] >= dataInicial) &
+        (df_mov_filtrado['data'] <= dataFim) &
+        (df_mov_filtrado['pagamento_id'].isin(pagamentosSelecionados)) &
+        (df_mov_filtrado['categoria_id'].isin(categoriasSelecionadas))
+    ]
 except Exception as erro:
     st.sidebar.warning(f'Erro: {erro}')
 
@@ -168,14 +174,38 @@ with abaVisaoGeral:
         col3, col4 = st.columns([1,1])
         with col3:
             df_plot_cat = df_mov_filtrado.groupby('categoria_id').agg({'valor': sum}).reset_index()
-            df_plot_cat = df_plot_cat.merge(df_cat, left_on='categoria_id', right_on='id')
-            fig_cat = px.pie(df_plot_cat, values = 'valor', names = 'nome', title = 'Por Categoria', color_discrete_sequence=px.colors.sequential.Rainbow)
+
+            df_plot_cat = df_plot_cat.merge(
+                df_cat,
+                left_on='categoria_id',
+                right_on='id'
+            )
+
+            fig_cat = px.pie(
+                df_plot_cat,
+                values = 'valor',
+                names = 'nome',
+                title = 'Por Categoria',
+                color_discrete_sequence=px.colors.sequential.Rainbow
+            )
+
             st.plotly_chart(fig_cat)
         with col4:
             df_plot_pag = df_mov_filtrado.groupby('pagamento_id').agg({'valor': sum}).reset_index()
             df_plot_pag = df_plot_pag.merge(df_pag, left_on='pagamento_id', right_on='id')    
-            fig_pag = px.pie(df_plot_pag, values='valor', names='nome', title='Por Pagamento', color_discrete_sequence=px.colors.sequential.Magma)
+           
+            fig_pag = px.pie(
+                df_plot_pag,
+                values='valor',
+                names='nome',
+                title='Por Pagamento',
+                color_discrete_sequence=px.colors.sequential.Magma
+                )
+            
             st.plotly_chart(fig_pag)
+
+        with st.expander('Dataframe Filtrado', expanded=False):
+            st.dataframe(df_mov_filtrado)
     except Exception as erro:
         st.warning(f'Erro ao gerar dados. Confira os campos de filtros. Erro: {erro}')
     
@@ -198,7 +228,7 @@ with abaMovimentos:
             pagamento_id = st.selectbox(
                 'Pagamento',
                 df_pag['id'],
-                format_func= lambda x: df_pag.loc[df_pag['id'] == x, 'nome'].values[0]
+                format_func = lambda x: df_pag.loc[df_pag['id'] == x, 'nome'].values[0]
             )
         with col5:
             status = st.text_input('Status', key='fielStatusAddMovimento')
@@ -220,11 +250,11 @@ with abaMovimentos:
 
     st.divider()
 
-    for index, row in df_mov.head(150).iterrows():
-        col1, col2, col3, col4, col5, col6, col7, col8 = st.columns([1,1,1,1,1,2,1,1])
+    for index, row in df_mov.head(100).iterrows():
+        col1, col2, col3, col4, col5, col6, col7, col8 = st.columns([2,1,1,1,1,2,1,1])
 
         col1.write(row['descricao'])
-        col2.write(row['valor'])
+        col2.write(str(row['valor']))
         with col3:
             result = df_cat.loc[df_cat['id'] == row['categoria_id'], 'nome']
             #st.write(df_cat.loc[df_cat['id'] == row['categoria_id'], 'nome'].values[0])
