@@ -104,8 +104,6 @@ categoriasSelecionadas = st.sidebar.multiselect(
     format_func=lambda x: mapaCategorias.get(x, x)
 )
 
-st.text('Pagamentos')
-
 dfP = df_mov_filtrado.merge(
     df_pag,
     left_on='pagamento_id',
