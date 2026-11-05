@@ -13,7 +13,8 @@ def carregarTabelas():
     try:
         df_mov = dbac.selectMovimentos()
         df_mov['data'] = pd.to_datetime(df_mov['data'], format='%d/%m/%Y', dayfirst=True)
-        df_mov = df_mov.sort_values('data', ascending=False)
+        #df_mov = df_mov.sort_values('data', ascending=False)
+        df_mov = df_mov.sort_values('id', ascending=False)
         df_mov['data'] = df_mov['data'].dt.strftime('%d/%m/%Y')
         df_cat = dbac.selectCategorias()
         df_pag = dbac.selectPagamentos()
@@ -70,6 +71,13 @@ def validarCamposMovimento(descricao, valor, categoria_id, pagamento_id, status,
 
 inicializar()
 carregarTabelas()
+
+
+st.set_page_config(
+    page_title="Finance Flow",
+    page_icon="icon.png"
+)
+
 # ==================== SIDEBAR ====================
 st.sidebar.subheader('Filtros')
 st.sidebar.text('Datas')
@@ -251,6 +259,7 @@ with abaMovimentos:
     for index, row in df_mov.head(100).iterrows():
         col1, col2, col3, col4, col5, col6, col7, col8 = st.columns([2,1,1,1,1,2,1,1])
 
+        #col0.write(str(row['id']))
         col1.write(row['descricao'])
         col2.write(str(row['valor']))
         with col3:
@@ -363,7 +372,7 @@ with abaMovimentos:
             dataDeletar = st.session_state.get('deletarMovimento_data')
             
             st.subheader('Deletar Movimento')
-            st.text(f'Tem certeza que deseja apagar? ID {id_mov} -> {descricaoDeletar} R$ {valorDeletar} {df_cat.loc[df_cat['id'] == categoriaDeletar, 'nome'].values[0]} {df_pag.loc[df_pag['id'] == pagamentoDeletar, 'nome'].values[0]} {statusDeletar} {dataDeletar}')
+            st.text(f"Tem certeza que deseja apagar? ID {id_mov} -> {descricaoDeletar} R$ {valorDeletar} {df_cat.loc[df_cat['id'] == categoriaDeletar, 'nome'].values[0]} {df_pag.loc[df_pag['id'] == pagamentoDeletar, 'nome'].values[0]} {statusDeletar} {dataDeletar}")
             col1, col2 = st.columns([1,1])
             with col1:
                 if st.button('Confirmar', key=f'buttonDeletarMovimento{id_mov}'):
@@ -399,7 +408,7 @@ with abaCategorias:
     for index, row in df_cat.iterrows():
         col1, col2, col3, col4 = st.columns([1,1,1,1])
 
-        col1.write(row['id'])
+        col1.write(str(row['id']))
         col2.write(row['nome'])
 
         with col3:
@@ -475,7 +484,7 @@ with abaPagamentos:
     for index, row in df_pag.iterrows():
         col1, col2, col3, col4 = st.columns([1,1,1,1])
 
-        col1.write(row['id'])
+        col1.write(str(row['id']))
         col2.write(row['nome'])
 
         with col3:
