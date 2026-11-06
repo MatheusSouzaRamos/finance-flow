@@ -216,9 +216,16 @@ with abaVisaoGeral:
         st.warning(f'Erro ao gerar dados. Confira os campos de filtros. Erro: {erro}')
     
 with abaMovimentos:
-    with st.form(key='formMovimento', clear_on_submit=True, enter_to_submit=True):
+    if st.session_state.get('limpar_form', False):
+        st.session_state['fieldDescricaoAddMovimento'] = ''
+        st.session_state['fieldValorAddMovimento'] = ''
+        st.session_state['fielStatusAddMovimento'] = ''
+        st.session_state['fieldDataAddMovimento'] = ''
+        st.session_state['limpar_form'] = False
+
+    with st.form(key='formMovimento', clear_on_submit=False, enter_to_submit=True):
         st.subheader('Inserir Movimento')
-        col1, col2, col3, col4, col5, col6 = st.columns([2,2,2,2,1,2])
+        col1, col2, col3, col4, col5, col6 = st.columns([2, 2, 2, 2, 1, 2])
 
         with col1:
             descricao = st.text_input('Descrição', key='fieldDescricaoAddMovimento')
@@ -228,31 +235,37 @@ with abaMovimentos:
             categoria_id = st.selectbox(
                 'Categoria',
                 df_cat['id'],
-                format_func= lambda x: df_cat.loc[df_cat['id'] == x, 'nome'].values[0]
+                key='fieldCategoriaAddMovimento',
+                format_func=lambda x: df_cat.loc[df_cat['id'] == x, 'nome'].values[0]
             )
         with col4:
             pagamento_id = st.selectbox(
                 'Pagamento',
                 df_pag['id'],
-                format_func = lambda x: df_pag.loc[df_pag['id'] == x, 'nome'].values[0]
+                key='fieldPagamentoAddMovimento',
+                format_func=lambda x: df_pag.loc[df_pag['id'] == x, 'nome'].values[0]
             )
         with col5:
             status = st.text_input('Status', key='fielStatusAddMovimento')
         with col6:
             data = st.text_input('Data', key='fieldDataAddMovimento')
         
-        if st.form_submit_button('Adcionar', key='buttonAddMovimento'):
+        if st.form_submit_button('Adicionar', key='buttonAddMovimento'):
             if validarCamposMovimento(descricao, valor, categoria_id, pagamento_id, status, data):
                 descricao = descricao.strip()
-                valor = float(valor.replace(',','.'))
+                valor = float(valor.replace(',', '.'))
                 categoria_id = int(categoria_id)
                 pagamento_id = int(pagamento_id)
                 status = status.strip()
                 data = validarData(data)
+                
                 dbac.insertMovimentos(descricao, valor, categoria_id, pagamento_id, status, data)
+                
+                st.session_state['limpar_form'] = True
+                st.success('Movimentação inserida com sucesso!')
                 st.rerun()
             else:
-                st.warning('Movimentação inválida')
+                st.warning('Movimentação inválida. Verifique os campos informados.')
 
     st.divider()
 
